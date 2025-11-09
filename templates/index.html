@@ -2,24 +2,6 @@
 <html lang="en">
 
 <head>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggle = document.querySelector('.mobile-nav-toggle');
-    const navbar = document.getElementById('navbar');
-
-    if (toggle && navbar) {
-      toggle.addEventListener('click', function () {
-        navbar.classList.toggle('navbar-mobile');
-        this.classList.toggle('bi-list');
-        this.classList.toggle('bi-x');
-      });
-    }
-  });
-    .navbar-mobile {
-  display: block !important;
-}
-
-</script>
 
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -398,6 +380,12 @@
                             <h3>Email</h3>
                             <p><a href="2021wa15683@wilp.bits-pilani.ac.in">2021wa15683@wilp.bits-pilani.ac.in</a></p>
                         </div>
+                        <li>
+                                {% if not session.logged_in %}
+                                <a class="nav-link scrollto" href="{{ url_for('login') }}">Login</a>
+                                {% else %}
+                                <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-500 transition duration-300">Log Out</a>
+                            </li>
                     </div>
                 </div>
 
