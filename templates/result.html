@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P.R.I.S.M. – Automated Resume Screening</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #000000;
+      min-height: 100vh;
+      background-image: linear-gradient(to bottom right, #eef2ff, #f8fafc);
+    }
+
+    .gradient-header {
+      background: linear-gradient(135deg, #312e81, #8b1fac, #ff62e5);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass-card {
+      backdrop-filter: blur(12px);
+      background: rgba(247, 165, 13, 0.8);
+      border: 1px solid rgba(29, 11, 11, 0.5);
+    }
+
+    .score-bar {
+      height: 8px;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .dropzone {
+      border: 2px dashed #6366f1;
+      border-radius: 10px;
+      background-color: #d8ecff;
+      transition: all 0.3s ease;
+    }
+
+    .dropzone:hover {
+      background-color: #1d9783;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="text-gray-800">
+  <!-- HEADER -->
+  <header class="gradient-header text-white py-6 shadow-lg">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center">
+      <h1 class="text-3xl font-bold tracking-wide">Automate Resume Screening</h1>
+      <p class="text-sm font-medium opacity-90 mt-2 sm:mt-0">
+        Precision Resume Intelligence for Smart Matching
+      </p>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-6xl mx-auto mt-10 px-6 space-y-10 fade-in">
+
+    <!-- FORM CARD -->
+    <section id="formdiv" class="glass-card p-8 rounded-2xl shadow-xl">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Screen Candidates Instantly</h2>
+      <form id="formid" action="/" method="POST" enctype="multipart/form-data" class="space-y-8">
+      
+        <!-- Job Description -->
+        <div>
+          <label class="block text-lg font-medium mb-2 text-gray-700">Job Description</label>
+          <textarea id="job_description" name="job_description" rows="6"
+            class="w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 p-3 text-gray-700"
+            placeholder="e.g., Looking for a Data Analyst skilled in Python, Power BI, SQL, and data modeling."></textarea>
+        </div>
+
+        <!-- File Upload -->
+        <div>
+          <label class="block text-lg font-medium mb-2 text-gray-700">Upload Resumes (PDF only)</label>
+          <div id="dropzone" class="dropzone p-6 flex flex-col items-center justify-center text-center cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-indigo-600 mb-2" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 16v-8m0 0l-3 3m3-3l3 3M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M4 12l1.5-6A2 2 0 017.4 4h9.2a2 2 0 011.9 2l1.5 6" />
+            </svg>
+            <p class="text-gray-600 font-medium">Drag and drop files here, or click to select</p>
+            <input id="resume_file" name="resume_file[]" type="file" multiple accept=".pdf" class="hidden" />
+            <span id="file-name-display" class="mt-2 text-sm text-indigo-700 font-medium">No files selected</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="text-center">
+          <button type="submit"
+            class="px-10 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-lg focus:outline-none focus:ring-4 focus:ring-indigo-300">
+            Start Screening
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- RESULTS CARD -->
+    <section id="resultdiv" class="glass-card p-8 rounded-2xl shadow-xl {% if not results %}hidden{% endif %}">
+      <!-- Title and Flash Messages -->
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Screening Results for {{ jobfile }}</h2>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="mb-6">
+            {% for category, msg in messages %}
+              <li class="text-{{ 'red' if category == 'error' else 'green' }}-600 font-semibold">{{ category }}: {{ msg }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <div id="results-table-container" class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden shadow">
+          <thead class="bg-indigo-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Candidate File</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Match Score (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, score in results %}
+            <tr class="hover:bg-indigo-50 transition">
+              <td class="px-6 py-4 text-indigo-700 font-semibold">{{ name }}
+                <a href="{{ url_for('serve_resumes', filename=name) }}" download>{{ name }}</a>
+              </td>
+              <td class="px-6 py-4">{{ (score * 100) | round(2) }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 text-center">
+        <form action="/" method="GET">
+          <button
+            class="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            New Screening
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="p-6 rounded-2xl glass-card text-sm leading-relaxed">
+      <h3 class="text-xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">About P.R.I.S.M.</h3>
+      <p class="text-black-600">
+        <strong class="text-indigo-600">P.R.I.S.M.</strong> (Precision Resume Intelligence for Smart Matching)
+        helps HR teams and recruiters quickly shortlist top candidates by analyzing multiple resumes against job
+        descriptions using advanced <strong>KNN</strong> and <strong>content-based filtering</strong> algorithms. It
+        leverages <strong>Count Vectorization</strong> and <strong>Cosine Similarity</strong> to compute relevance scores
+        and streamline talent acquisition workflows.
+      </p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 py-6 text-center text-gray-500 text-sm border-t border-gray-200">
+    © {{ current_year or "2025" }} P.R.I.S.M. | Powered by AI-driven Resume Intelligence
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      const hasResults = $("#results-table-container").length > 0 && $("#results-table-container").children().length > 0;
+      if (hasResults) {
+        $("#formdiv").hide();
+        $("#resultdiv").show();
+      } else {
+        $("#resultdiv").hide();
+      }
+
+      $("#formid").submit(function (e) {
+        e.preventDefault();
+        if (!$('#job_description').val().trim()) {
+          alert("Please enter a Job Description.");
+          return;
+        }
+        if ($('#resume_file').get(0).files.length === 0) {
+          alert("Please upload at least one resume.");
+          return;
+        }
+        $("#formdiv").slideUp(400, function () {
+          $("#resultdiv").slideDown(400);
+        });
+        this.submit();
+      });
+
+      $('#dropzone').on('click', function () {
+        $('#resume_file').trigger('click');
+      });
+
+      $('#resume_file').on('change', function () {
+        const files = $(this)[0].files;
+        const display = $('#file-name-display');
+        if (files.length === 0) display.text('No files selected');
+        else if (files.length === 1) display.text(files[0].name);
+        else display.text(`${files.length} files selected`);
+      });
+    });
+  </script>
+</body>
+</html>

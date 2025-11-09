@@ -1,0 +1,107 @@
+import os
+import glob
+import hashlib
+import warnings
+from flask import (
+    Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
+)
+
+from werkzeug.utils import secure_filename
+from screen import res as screen_res  # your screening function
+from search import res as search_res   # keep as is if you have search.py
+
+warnings.filterwarnings("ignore")
+
+app = Flask(__name__)
+app.secret_key = "super_secret_key"
+
+# --- Config ---
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "Original_Resumes")
+JOB_FOLDER = os.path.join(os.getcwd(), "Job_Description")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(JOB_FOLDER, exist_ok=True)
+
+app.config.update(
+    UPLOAD_FOLDER=UPLOAD_FOLDER,
+    USERNAME="testuser",
+    PASSWORD=hashlib.md5("pass".encode("utf-8")).hexdigest(),
+)
+
+# --- Helper class for job descriptions ---
+class JD:
+    def __init__(self, name):
+        self.name = name
+
+# --- Routes ---
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Login page."""
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = hashlib.md5(request.form.get("password", "").encode("utf-8")).hexdigest()
+
+        if username != app.config["USERNAME"]:
+            error = "Invalid username"
+        elif password != app.config["PASSWORD"]:
+            error = "Invalid password"
+        else:
+            session["logged_in"] = True
+            flash("You were logged in successfully!", "success")
+            return redirect(url_for("home"))
+
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    """Logout."""
+    session.pop("logged_in", None)
+    flash("You have been logged out.", "info")
+    return redirect(url_for("home"))
+
+
+@app.route("/")
+def home():
+    """Show job descriptions on homepage."""
+    jobs = []
+    for file in glob.glob(os.path.join(JOB_FOLDER, "*.txt")):
+        jobs.append(JD(os.path.basename(file)))
+    return render_template("index.html", results=jobs)
+
+
+@app.route('/results', methods=['POST'])
+def res():
+    jobfile = None
+    try:
+        jobfile = request.form.get('des')
+        if not jobfile:
+            flash('Please select a job description.', 'warning')
+            return redirect(url_for('home'))
+
+        resumes = request.files.getlist('resumes_upload')
+        if not resumes or resumes[0].filename == '':
+            flash('Please upload at least one resume.', 'warning')
+            return redirect(url_for('home'))
+
+        # process resumes, jobfile here...
+
+        results = screen_res(jobfile)  # Example screening function
+    except Exception as e:
+        flash(f'Error processing resumes: {e}', 'danger')
+        results = []
+
+    return render_template('result.html', results=results, title=f"Screening Results for {jobfile}")
+
+
+
+
+@app.route("/Original_Resumes/<path:filename>")
+def serve_resumes(filename):
+    """Serve uploaded resumes."""
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, threaded=True)

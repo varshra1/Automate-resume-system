@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Register - Resume Screening</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: "Montserrat", sans-serif;
+      background: url('/static/assets/img/images.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .login-box {
+      background-color: rgba(0, 0, 0, 0.6); /* Slightly transparent black */
+      padding: 30px 40px;
+      border-radius: 15px;
+      width: 320px;
+      box-sizing: border-box;
+      text-align: center;
+      box-shadow: 0 0 15px #0f9d58;
+    }
+    .login-box h2 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      border-bottom: 4px solid #4caf50;
+      padding-bottom: 10px;
+      font-weight: 800;
+    }
+    .textbox {
+      width: 100%;
+      background: none;
+      border: none;
+      border-bottom: 2px solid #4caf50;
+      margin: 15px 0;
+      font-size: 20px;
+      color: white;
+      padding: 8px 5px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .textbox::placeholder {
+      color: #b0bec5;
+    }
+    button {
+      width: 100%;
+      background: #4caf50;
+      border: none;
+      padding: 12px;
+      border-radius: 9999px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: 700;
+      margin-top: 25px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #43a047;
+    }
+    p {
+      margin-top: 20px;
+      font-weight: 600;
+    }
+    p a {
+      color: #4caf50;
+      text-decoration: none;
+      font-weight: 800;
+    }
+    p a:hover {
+      text-decoration: underline;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+      color: #ff5252;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Register</h2>
+  <form method="POST" action="{{ url_for('register') }}">
+    <label>Name:</label><br>
+    <input type="text" name="name" required><br><br>
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br><br>
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+    <button type="submit">Register</button>
+  </form>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+      {% for category, msg in messages %}
+      <li style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">{{ msg }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+</body>
+</html>

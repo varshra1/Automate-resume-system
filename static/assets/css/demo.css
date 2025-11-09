@@ -1,0 +1,65 @@
+*{
+   border: none; 
+}
+body {
+    background-image: url("static/assets/img/hero-carousel/3.jpg") ;
+    color:rgb(224, 46, 46);
+    background-color: #bba187;
+    font-size: 45px;
+    font-weight: bold;
+    text-align: center;
+}
+#top {
+    max-width: 1440px;
+}
+.demo .row .col {
+    background-color: rgb(131, 128, 128);
+    /* background-color: transparent; */
+}
+.demo .row .col:nth-child(even) {
+    background-color: #ddd;
+    /* background-color: transparent; */
+}
+.docs {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.summary a {
+    color: #41403e;
+}
+img.no-responsive {
+    max-width: -webkit-fill-available;
+    max-width: -moz-available;
+}
+.to-top {
+    opacity: 1;
+    display: inline-block;
+    padding: 1em;
+    position: fixed;
+    bottom: 1em;
+    right: 1em
+}
+.to-top .paper-btn {
+    padding: .6em 1em;
+    color: aliceblue;
+    background: rgb(12, 27, 75);
+    /* background-color: transparent; */
+    border-top-left-radius: 185px 160px;
+    border-top-right-radius: 200px 195px;
+    border-bottom-right-radius: 160px 195px;
+    border-bottom-left-radius: 185px 190px
+}
+.to-top .paper-btn :hover{
+    background: rgb(110, 118, 230);
+}
+.demo-title:hover + .to-top {
+    opacity: 0
+}
+.sidebar-title a {
+  color: inherit;
+  background: none;
+  background-color: transparent;
+}
+.collapsible.full-width {
+  width: 100%;
+}

@@ -1,0 +1,21 @@
+
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Verify OTP - Resume Screening</title></head>
+  <body>
+    <h2>Enter OTP</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, msg in messages %}
+          <li>{{ category }}: {{ msg }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="post">
+      <input name="otp" placeholder="6-digit OTP" required/><br/>
+      <button type="submit">Verify</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>P.R.I.S.M - Resume Screening</title>
+    <meta content="Personal Resume Investigator System Model" name="description">
+    <meta content="resume, screening, AI, recruitment" name="keywords">
+
+    <!-- Pre-existing template assets (kept for structure, but Tailwind will drive aesthetics) -->
+    <link href="{{ url_for('static', filename='assets/img/favicon.png')}}" rel="icon">
+    <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png')}}" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Montserrat:300,400,500,700" rel="stylesheet">
+
+    <!-- Vendor CSS Files (kept for structure) -->
+    <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css')}}" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css')}}" rel="stylesheet">
+
+    <!-- Template Main CSS File (kept for structure) -->
+    <link href="{{ url_for('static', filename='assets/css/style.css')}}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/css/login2.css')}}" rel="stylesheet">
+    
+    <!-- ADDED: Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind to use the Inter font by default
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-dark': '#1bb392', // Matches var(--color-primary-dark)
+                        'card-dark': '#1f2937',    // Matches var(--color-card-dark)
+                        'accent': '#3b82f6',       // Matches var(--color-accent)
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- ADDED/UPDATED: Custom style block for screen layout and dark mode theme -->
+    <style>
+        /* Define custom CSS variables for consistency (using Tailwind colors above) */
+        :root {
+            --color-primary-dark: #1bb392; 
+            --color-card-dark: #1f2937;    
+            --color-accent: #3b82f6;       
+        }
+
+        /* General layout styles */
+        html { scroll-behavior: smooth; overflow-y: scroll !important; }
+
+        .screen {
+            padding-top: 100px; /* Adjusted padding to clear fixed header */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background-color: var(--color-primary-dark);
+            padding-bottom: 40px;
+        }
+        
+        .main-screen {
+            width: 100%;
+            padding: 20px;
+            max-width: 900px; /* Limiting width for better readability on desktop */
+        }
+
+        /* The dark, rounded card containing the form */
+        .screen-card {
+            background-color: var(--color-card-dark);
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(59, 130, 246, 0.3);
+            max-width: 550px; /* Slightly wider card for better form layout */
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 3rem;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Custom Select Styling */
+        .select-wrapper { position: relative; margin-bottom: 1.5rem; }
+
+        .select-input {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #4b5563; /* Gray 600 border */
+            background-color: #374151; /* Gray 700 background (darker than card) */
+            color: #f3f4f6; /* Light gray text */
+            appearance: none;
+            padding-right: 2.5rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .select-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Custom dropdown arrow */
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #d1d5db; /* Gray 300 - bright arrow */
+            font-size: 0.75rem;
+            transition: color 0.2s;
+        }
+
+        /* Styling for the Upload Input (using Tailwind's file utility classes) */
+        .file-input-style {
+            transition: all 0.2s ease;
+        }
+
+        /* Main Submit Button Styling */
+        .submit-btn {
+            min-width: 280px;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--color-accent);
+            color: white;
+            font-weight: bold;
+            border-radius: 9999px;
+            padding: 0.75rem 2rem;
+            transition: background 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            background-color: #2563eb; /* Blue 600 on hover */
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background-color: #4b5563; /* Gray background when disabled */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="fixed-top d-flex align-items-center header-transparent">
+        <div class="container-fluid">
+
+            <div class="row justify-content-center align-items-center">
+                <div class="col-xl-11 d-flex align-items-center justify-content-between">
+                    <h1 class="logo"><a href="index.html">P.R.I.S.M</a></h1>
+                    <nav id="navbar" class="navbar">
+                        <ul>
+                            <li><a class="nav-link scrollto active" {% if not session.logged_in %} href="#hero">Home</a>{% endif %}</li>
+                            <li><a class="nav-link scrollto active"{% if not session.logged_in %} href="#about">About</a>{% endif %}</li>
+                           <!---- <li><a class="nav-link scrollto"{% if not session.logged_in %} href="#team">Team</a>{% endif %}</li> -->
+                            <li><a class="nav-link scrollto"{% if not session.logged_in %} href="#contact">Contact</a>{% endif %}</li>
+                            <li>
+                                {% if not session.logged_in %}
+                                <a class="nav-link scrollto" href="{{ url_for('login') }}">Login</a>
+                                {% else %}
+                                <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-500 transition duration-300">Log Out</a>
+                            </li>
+                        </ul>
+                        {% endif %}
+                        <i class="bi bi-list mobile-nav-toggle">Menu</i>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- End Header -->
+
+    {% if session.logged_in %}
+    {% if session.logged_in %}
+<div style="height:100vh;" class="flex items-center justify-center bg-[var(--color-red-dark)]">
+  
+  <div class="bg-gray-900 bg-opacity-90 rounded-3xl shadow-2xl max-w-md w-full h-[400px] max-h-[90vh] flex flex-col items-center p-10">
+    <h2 class="text-4xl font-extrabold mb-8 text-center drop-shadow-lg tracking-wide text-white">
+      Start Resume Screening
+    </h2>
+
+    <form action="{{ url_for('process') }}" method="post" enctype="multipart/form-data" class="w-full space-y-6">
+      <div>
+        <label class="block mb-2 text-sm font-semibold text-white" for="jd_file">Job Description (TXT, DOCX, PDF)</label>
+        <input id="jd_file" name="jd_file" type="file" accept=".txt,.docx,.pdf" required
+          class="w-full text-white-900 rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400" />
+      </div>
+
+      <div>
+        <label class="block mb-2 text-sm font-semibold text-white" for="resumes">Resumes (multiple)</label>
+        <input id="resumes" name="resumes" type="file" accept=".txt,.docx,.pdf" multiple required
+          class="w-full text-white-900 rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400" />
+      </div>
+
+      <button type="submit"
+  class="w-full flex items-center justify-center text-center text-white bg-gradient-to-r from-teal-400 to-indigo-600
+         hover:from-indigo-600 hover:to-teal-400 transition rounded-full py-3 font-bold text-lg shadow-lg
+         shadow-teal-400/50 hover:shadow-indigo-600/50 focus:outline-none focus:ring-4 focus:ring-teal-300">
+  Start Screening
+</button>
+
+    </form>
+    
+    
+
+  </div>
+</div>
+
+</div>
+{% endif %}
+
+    {% endif %}
+
+    {% if not session.logged_in %}
+    <!-- ======= hero Section (Existing Logged-Out Content) ======= -->
+    <section id="hero">
+        <div class="hero-container">
+            <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+
+                <ol id="hero-carousel-indicators" class="carousel-indicators"></ol>
+
+                <div class="carousel-inner" role="listbox">
+                    <div class="carousel-item active" style="background-image: url(../static/assets/img/hero-carousel/1.jpg)">
+                        <div class="carousel-container">
+                            <div class="container">
+                                <h2 class="animate__animated animate__fadeInDown">Automated Resume Screening System</h2>
+                                <p class="animate__animated animate__fadeInUp">............</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="background-image: url(../static/assets/img/hero-carousel/2.jpg)">
+                        <div class="carousel-container">
+                            <div class="container">
+                                <h2 class="animate__animated animate__fadeInDown">Personal Resume Investigator System Model</h2>
+                                <p class="animate__animated animate__fadeInUp">............</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="background-image: url(../static/assets/img/hero-carousel/3.jpg)">
+                        <div class="carousel-container">
+                            <div class="container">
+                                <h2 class="animate__animated animate__fadeInDown">P.R.I.S.M</h2>
+                                <p class="animate__animated animate__fadeInUp">...................</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="carousel-control-prev" href="#heroCarousel" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+                </a>
+
+                <a class="carousel-control-next" href="#heroCarousel" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+                </a>
+            </div>
+        </div>
+        <!-- START: Scroll Down Feature -->
+        <a href="#about" class="scrollto hero-scroll-down d-flex align-items-center justify-content-center">
+            <i class="bi bi-chevron-down"></i>
+        </a>
+        <!-- END: Scroll Down Feature -->
+    </section><!-- End Hero Section -->
+
+    <main id="main">
+        <!-- ======= About Us Section (Existing Logged-Out Content) ======= -->
+        <section id="about">
+            <div class="container" data-aos="fade-up">
+                <header class="section-header">
+                    <h3>About Us</h3>
+                    <p>At P.R.I.S.M. (Precision Resume Intelligence for Smart Matching), we are passionate about transforming the recruitment landscape through cutting-edge technology. Our automated resume screening system harnesses advanced natural language processing (NLP) and machine learning algorithms to empower HR teams and recruiters to identify top talent quickly and accurately.</p>
+                </header>
+                <div class="row about-cols">
+                    <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="about-col">
+                            <div class="img">
+                                <img src="../static/assets/img/about-mission.jpg" alt="" class="img-fluid">
+                                <div class="icon"><i class="bi bi-bar-chart"></i></div>
+                            </div>
+                            <h2 class="title"><a href="#">Our Mission</a></h2>
+                            <p>Our mission is to simplify recruitment by delivering a reliable, scalable solution that adapts to diverse industries and evolving hiring needs. Developed by a team of dedicated technology enthusiasts and data scientists, P.R.I.S.M. represents the future of smart, data-driven recruiting—helping organizations find the right people faster so they can build stronger, more productive teams.<br></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="about-col">
+                            <div class="img">
+                                <img src="../static/assets/img/about-plan.jpg" alt="" class="img-fluid">
+                                <div class="icon"><i class="bi bi-brightness-high"></i></div>
+                            </div>
+                            <h2 class="title"><a href="#">Our Plan</a></h2>
+                            <p>Our plan is to develop and continuously enhance an AI-powered resume screening platform that dramatically reduces the time and effort recruiters spend on reviewing candidate resumes. By leveraging advanced natural language processing and machine learning algorithms, the system intelligently analyzes resumes against job descriptions to provide data-driven similarity scores and rankings. We aim to integrate seamless resume parsing capabilities, improve accuracy with ongoing learning, and deliver an intuitive, scalable solution that fits diverse organizational needs.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="about-col">
+                            <div class="img">
+                                <img src="../static/assets/img/about-vision.jpg" alt="" class="img-fluid">
+                                <div class="icon"><i class="bi bi-calendar4-week"></i></div>
+                            </div>
+                            <h2 class="title"><a href="#">Our Vision</a></h2>
+                            <p>We envision becoming the leading automated hiring assistant recognized globally for transforming recruitment efficiency and fairness. Our vision is to empower companies to hire the best-fit candidates faster and with unbiased decision-making by automating the resume screening process end-to-end. Through continual innovation in AI and user-focused design, we aspire to build a trusted platform that revolutionizes talent acquisition for the digital age.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End About Us Section -->
+
+        
+        <!-- ======= Contact Section (Existing Logged-Out Content) ======= -->
+        <section id="contact" class="section-bg">
+            <div class="container" data-aos="fade-up">
+
+                <div class="section-header">
+                    <h3>Contact Us</h3>
+                </div>
+
+                <div class="row contact-info">
+                    <div class="col-md-4">
+                        <div class="contact-address">
+                            <i class="bi bi-geo-alt"></i>
+                            <h3>Address</h3>
+                            <address>Birla Institue of Technology & Science
+                                Pilani Campus, Vidya Vihar, Pilani, Pin - 333031. Rajasthan, India.
+                            </address>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="contact-phone">
+                            <i class="bi bi-phone"></i>
+                            <h3>Phone Number</h3>
+                            <p><a href="tel:1800-233-9111">9098769963</a></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="contact-email">
+                            <i class="bi bi-envelope"></i>
+                            <h3>Email</h3>
+                            <p><a href="2021wa15683@wilp.bits-pilani.ac.in">2021wa15683@wilp.bits-pilani.ac.in</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                
+    </main>
+    <!-- End #main -->
+    {% endif %}
+
+     <div class="container">
+        <div class="copyright">
+          &copy; Copyright <strong>Resume Screening</strong>. All Rights Reserved
+        </div>
+    </footer> 
+    <!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <!-- Uncomment below i you want to use a preloader -->
+    <!-- <div id="preloader"></div> -->
+
+    <!-- Vendor JS Files -->
+    <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/purecounter/purecounter.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/waypoints/noframework.waypoints.js')}}"></script>
+
+    <!-- Template Main JS File -->
+    <script src="{{ url_for('static', filename='assets/js/main.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/js/analytics.js')}}"></script>
+    <script src="{{ url_for('static', filename='assets/js/js')}}"></script>
+
+    <!-- ADDED: Custom JavaScript for form interaction -->
+    <script>
+        document.getElementById('screeningForm')?.addEventListener('submit', function(event) {
+            const button = document.getElementById('submitButton');
+            const buttonText = document.getElementById('buttonText');
+            const spinner = document.getElementById('loadingSpinner');
+            
+            // Check if a file has been selected, or if the dropdown is active.
+            // The JD dropdown is required, so we primarily check if the file input has files.
+            const fileInput = document.getElementById('resumes_upload');
+
+            if (fileInput.files.length === 0) {
+                // If no files are uploaded, prevent submission and notify the user
+                event.preventDefault();
+                alert('Please upload at least one resume file (.pdf or .docx) to proceed with screening.');
+                return;
+            }
+
+            // Disable the button and show the loading state
+            button.disabled = true;
+            buttonText.textContent = 'Processing Resumes...';
+            spinner.classList.remove('hidden');
+        });
+    </script>
+</body>
+
+</html>
