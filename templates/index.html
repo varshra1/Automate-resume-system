@@ -2,6 +2,24 @@
 <html lang="en">
 
 <head>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.querySelector('.mobile-nav-toggle');
+    const navbar = document.getElementById('navbar');
+
+    if (toggle && navbar) {
+      toggle.addEventListener('click', function () {
+        navbar.classList.toggle('navbar-mobile');
+        this.classList.toggle('bi-list');
+        this.classList.toggle('bi-x');
+      });
+    }
+  });
+    .navbar-mobile {
+  display: block !important;
+}
+
+</script>
 
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -175,6 +193,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
 
     </style>
 
