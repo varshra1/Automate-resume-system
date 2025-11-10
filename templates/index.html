@@ -380,12 +380,7 @@
                             <h3>Email</h3>
                             <p><a href="2021wa15683@wilp.bits-pilani.ac.in">2021wa15683@wilp.bits-pilani.ac.in</a></p>
                         </div>
-                        <li>
-                                {% if not session.logged_in %}
-                                <a class="nav-link scrollto" href="{{ url_for('login') }}">Login</a>
-                                {% else %}
-                                <a href="{{ url_for('logout') }}" class="text-red-400 hover:text-red-500 transition duration-300">Log Out</a>
-                            </li>
+                        
                     </div>
                 </div>
 

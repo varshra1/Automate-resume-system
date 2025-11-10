@@ -141,7 +141,7 @@
           <tbody>
             {% for name, score in results %}
             <tr class="hover:bg-indigo-50 transition">
-              <td class="px-6 py-4 text-indigo-700 font-semibold">{{ name }}
+              <td class="px-6 py-4 text-indigo-700 font-semibold">
                 <a href="{{ url_for('serve_resumes', filename=name) }}" download>{{ name }}</a>
               </td>
               <td class="px-6 py-4">{{ (score * 100) | round(2) }}%</td>
